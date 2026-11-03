@@ -2,22 +2,61 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
+import { diagnose } from "../lib/diagnose";
+import { useVehicles } from "../lib/VehicleContext";
+
+const ADVICE = {
+  drive_normally: "Safe to keep driving normally.",
+  drive_carefully: "Drive carefully and get it checked soon.",
+  do_not_drive: "Do not drive. Arrange a tow or roadside help.",
+};
 
 function Diagnosis() {
-  const [symptoms, setSymptoms] = useState("");
+  const { selectedVehicle, loading } = useVehicles();
+
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [result, setResult] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
 
-  function handleDiagnosis() {
-    if (!symptoms.trim()) return;
+  const isFirstMessage = messages.length === 0;
 
+  async function handleDiagnosis() {
+    const text = input.trim();
+    if (!text || isAnalyzing || !selectedVehicle) return;
+
+    const nextMessages = [...messages, { role: "user", content: text }];
+
+    setMessages(nextMessages);
+    setInput("");
+    setError("");
     setIsAnalyzing(true);
 
-    // Temporary simulation
-    setTimeout(() => {
+    try {
+      const reply = await diagnose(nextMessages, selectedVehicle);
+
+      if (reply.type === "diagnosis") {
+        setResult(reply);
+      } else {
+        setMessages([
+          ...nextMessages,
+          { role: "assistant", content: reply.message },
+        ]);
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Something went wrong while analyzing. Please try again.");
+    } finally {
       setIsAnalyzing(false);
-      setResult(true);
-    }, 1500);
+    }
+  }
+
+  function handleReset() {
+    setMessages([]);
+    setInput("");
+    setResult(null);
+    setError("");
   }
 
   return (
@@ -33,10 +72,6 @@ function Diagnosis() {
         {/* Intro */}
         <section className="diagnosis-intro">
 
-          <span className="eyebrow">
-            AI DIAGNOSIS
-          </span>
-
           <h1>
             What's happening with your vehicle?
           </h1>
@@ -50,38 +85,101 @@ function Diagnosis() {
 
         </section>
 
+        {/* No vehicle yet */}
+        {!loading && !selectedVehicle && (
+          <section className="empty-state">
+            <h2>Add a vehicle first</h2>
+            <p>
+              E-Kaniko needs to know which car it's diagnosing.
+            </p>
+            <Link to="/vehicles" className="primary-button">
+              Add your vehicle
+            </Link>
+          </section>
+        )}
+
+        {/* Conversation */}
+        {selectedVehicle && messages.length > 0 && (
+          <section className="chat-thread">
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`chat-bubble ${message.role}`}
+              >
+                {message.role === "assistant" && (
+                  <span className="chat-bubble-label">
+                    E-Kaniko
+                  </span>
+                )}
+                {message.content}
+              </div>
+            ))}
+
+            {isAnalyzing && (
+              <div className="chat-typing">
+                E-Kaniko is thinking...
+              </div>
+            )}
+          </section>
+        )}
+
         {/* Form */}
-        <section className="diagnosis-form">
+        {selectedVehicle && !result && (
+          <section className="diagnosis-form">
 
-          <label htmlFor="symptoms">
-            Describe the problem
-          </label>
+            <div className="diagnosing-vehicle">
+              Vehicle:{" "}
+              <strong>
+                {selectedVehicle.year} {selectedVehicle.make}{" "}
+                {selectedVehicle.model}
+              </strong>{" "}
+              <Link to="/vehicles">Change</Link>
+            </div>
 
-          <textarea
-            id="symptoms"
-            value={symptoms}
-            onChange={(e) => setSymptoms(e.target.value)}
-            placeholder="Example: My car makes a clicking sound when I turn left and the steering feels heavier than usual..."
-            rows={7}
-          />
+            <label htmlFor="symptoms">
+              {isFirstMessage
+                ? "Describe the problem"
+                : "Your reply"}
+            </label>
 
-          <div className="form-hint">
-            💡 The more details you provide,
-            the better the diagnosis.
-          </div>
+            <textarea
+              id="symptoms"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={
+                isFirstMessage
+                  ? "Example: My car makes a clicking sound when I turn left and the steering feels heavier than usual..."
+                  : "Type your answer here..."
+              }
+              rows={isFirstMessage ? 7 : 4}
+            />
 
-          <button
-            type="button"
-            className="primary-button diagnose-button"
-            onClick={handleDiagnosis}
-            disabled={isAnalyzing || !symptoms.trim()}
-          >
-            {isAnalyzing
-              ? "Analyzing..."
-              : "Analyze Vehicle"}
-          </button>
+            {isFirstMessage && (
+              <div className="form-hint">
+                The more details you provide,
+                the better the diagnosis.
+              </div>
+            )}
 
-        </section>
+            {error && (
+              <p className="form-error">{error}</p>
+            )}
+
+            <button
+              type="button"
+              className="primary-button diagnose-button"
+              onClick={handleDiagnosis}
+              disabled={isAnalyzing || !input.trim()}
+            >
+              {isAnalyzing
+                ? "Analyzing..."
+                : isFirstMessage
+                  ? "Analyze Vehicle"
+                  : "Send Reply"}
+            </button>
+
+          </section>
+        )}
 
         {/* AI Result */}
         {result && (
@@ -90,26 +188,22 @@ function Diagnosis() {
             <div className="result-header">
 
               <div>
-                <span className="eyebrow">
-                  AI ANALYSIS
-                </span>
-
-                <h2>
-                  Possible brake system issue
-                </h2>
+                <h2>{result.title}</h2>
               </div>
 
-              <span className="severity medium">
-                Medium
+              <span className={`severity ${result.severity}`}>
+                {result.severity}
               </span>
 
             </div>
 
-            <p>
-              Based on the symptoms you described,
-              the issue may be related to your brake
-              pads or brake components.
-            </p>
+            <p>{result.summary}</p>
+
+            {result.driving_advice && (
+              <div className={`driving-advice ${result.driving_advice}`}>
+                {ADVICE[result.driving_advice]}
+              </div>
+            )}
 
             <div className="result-grid">
 
@@ -117,20 +211,16 @@ function Diagnosis() {
                 <h3>Possible Causes</h3>
 
                 <ul>
-                  <li>Worn brake pads</li>
-                  <li>Debris around the brake assembly</li>
-                  <li>Brake rotor surface irregularities</li>
+                  {result.causes.map((cause) => (
+                    <li key={cause}>{cause}</li>
+                  ))}
                 </ul>
               </div>
 
               <div>
                 <h3>Recommended Action</h3>
 
-                <p>
-                  Have the brake system inspected by
-                  a qualified mechanic before continuing
-                  to drive if the noise becomes severe.
-                </p>
+                <p>{result.action}</p>
               </div>
 
             </div>
@@ -156,6 +246,20 @@ function Diagnosis() {
               </button>
 
             </div>
+
+            <p className="diagnosis-disclaimer">
+              This is an AI-generated estimate, not a
+              substitute for a certified mechanic's
+              inspection.
+            </p>
+
+            <button
+              type="button"
+              className="secondary-button new-diagnosis-button"
+              onClick={handleReset}
+            >
+              Start a New Diagnosis
+            </button>
 
           </section>
         )}

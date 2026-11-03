@@ -1,4 +1,13 @@
+import { Link } from "react-router-dom";
+
 function VehicleCard({ vehicle }) {
+  const details = [
+    vehicle.engine,
+    vehicle.mileage != null && `${vehicle.mileage.toLocaleString()} km`,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
   return (
     <div className="vehicle-card">
       <span className="vehicle-label">MY VEHICLE</span>
@@ -7,11 +16,11 @@ function VehicleCard({ vehicle }) {
         {vehicle.year} {vehicle.make} {vehicle.model}
       </h2>
 
-      <p>{vehicle.engine}</p>
+      {details && <p>{details}</p>}
 
-      <button type="button">
-        Change Vehicle
-      </button>
+      <Link to="/vehicles" className="vehicle-card-link">
+        Change vehicle
+      </Link>
     </div>
   );
 }
