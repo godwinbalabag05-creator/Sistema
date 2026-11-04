@@ -16,6 +16,12 @@ function Navbar() {
         <NavLink to="/">Home</NavLink>
         <NavLink to="/vehicles">Vehicles</NavLink>
         <NavLink to="/diagnosis">AI Diagnosis</NavLink>
+        <NavLink to="/shops">Shops</NavLink>
+        <NavLink to="/bookings">Bookings</NavLink>
+
+        {profile?.role === "admin" && (
+          <NavLink to="/admin">Admin</NavLink>
+        )}
 
         {user && (
           <>

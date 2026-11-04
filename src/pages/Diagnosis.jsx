@@ -238,12 +238,12 @@ function Diagnosis() {
                 </p>
               </div>
 
-              <button
-                type="button"
+              <Link
+                to={`/shops?category=${result.service_category ?? ""}`}
                 className="secondary-button"
               >
                 Find a Mechanic
-              </button>
+              </Link>
 
             </div>
 

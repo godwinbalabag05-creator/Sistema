@@ -96,7 +96,7 @@ function Vehicles() {
             const details = [
               vehicle.engine,
               vehicle.mileage != null &&
-                `${vehicle.mileage.toLocaleString()} km`,
+              `${vehicle.mileage.toLocaleString()} km`,
               vehicle.transmission_type,
               vehicle.plate_number,
             ]

@@ -3,6 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Diagnosis from "./pages/Diagnosis";
 import Vehicles from "./pages/Vehicles";
+import Shops from "./pages/Shops";
+import Bookings from "./pages/Bookings";
+import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -39,6 +42,33 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Diagnosis />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/shops"
+              element={
+                <ProtectedRoute>
+                  <Shops />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/bookings"
+              element={
+                <ProtectedRoute>
+                  <Bookings />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <Admin />
                 </ProtectedRoute>
               }
             />

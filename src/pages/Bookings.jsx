@@ -1,0 +1,204 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+import Navbar from "../components/Navbar";
+import { supabase } from "../lib/supabaseClient";
+import { useAuth } from "../lib/AuthContext";
+
+const STATUS_LABEL = {
+    pending: "Pending",
+    confirmed: "Confirmed",
+    completed: "Completed",
+    cancelled: "Cancelled",
+};
+
+function formatDate(value) {
+    return new Date(value).toLocaleString("en-PH", {
+        dateStyle: "medium",
+        timeStyle: "short",
+    });
+}
+
+function Bookings() {
+    const { profile } = useAuth();
+    const isAdmin = profile?.role === "admin";
+
+    const [bookings, setBookings] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        if (!supabase) {
+            setLoading(false);
+            return;
+        }
+
+        let ignore = false;
+
+        supabase
+            .from("bookings")
+            .select(
+                "*, mechanic_shops(shop_name, address, city, phone), vehicles(year, make, model), users(full_name, email)"
+            )
+            .order("created_at", { ascending: false })
+            .then(({ data, error }) => {
+                if (ignore) return;
+                if (error) setError(error.message);
+                setBookings(data ?? []);
+                setLoading(false);
+            });
+
+        return () => {
+            ignore = true;
+        };
+    }, []);
+
+    async function setStatus(booking, status) {
+        if (
+            status === "cancelled" &&
+            !window.confirm("Cancel this booking?")
+        ) {
+            return;
+        }
+
+        setError("");
+
+        const { error: updateError } = await supabase
+            .from("bookings")
+            .update({ status })
+            .eq("id", booking.id);
+
+        if (updateError) {
+            setError(updateError.message);
+            return;
+        }
+
+        setBookings((current) =>
+            current.map((b) => (b.id === booking.id ? { ...b, status } : b))
+        );
+    }
+
+    return (
+        <>
+            <Navbar />
+
+            <main className="page">
+                <div className="page-head">
+                    <div>
+                        <h1>{isAdmin ? "All bookings" : "Your bookings"}</h1>
+                        <p>
+                            {isAdmin
+                                ? "Confirm requests and mark finished jobs as completed."
+                                : "Requests you sent to repair shops, and their status."}
+                        </p>
+                    </div>
+
+                    {!isAdmin && (
+                        <Link to="/shops" className="primary-button">
+                            Find a mechanic
+                        </Link>
+                    )}
+                </div>
+
+                {error && <p className="form-error">{error}</p>}
+                {loading && <p>Loading bookings...</p>}
+
+                {!loading && bookings.length === 0 && (
+                    <div className="empty-state">
+                        <h2>No bookings yet</h2>
+                        <p>Pick a shop and send a request to see it here.</p>
+                    </div>
+                )}
+
+                <div className="shop-list">
+                    {bookings.map((booking) => {
+                        const shop = booking.mechanic_shops;
+                        const vehicle = booking.vehicles;
+                        const canCancel =
+                            booking.status === "pending" || booking.status === "confirmed";
+
+                        return (
+                            <article key={booking.id} className="shop-card">
+                                <div className="shop-card-top">
+                                    <div>
+                                        <h3>{shop?.shop_name ?? "Shop no longer listed"}</h3>
+                                        {shop && (
+                                            <p>
+                                                {[shop.address, shop.city].filter(Boolean).join(", ")}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <span className={`status-chip ${booking.status}`}>
+                                        {STATUS_LABEL[booking.status]}
+                                    </span>
+                                </div>
+
+                                <div className="booking-meta">
+                                    <span>
+                                        <strong>When:</strong>{" "}
+                                        {formatDate(booking.requested_datetime)}
+                                    </span>
+
+                                    {vehicle && (
+                                        <span>
+                                            <strong>Vehicle:</strong> {vehicle.year} {vehicle.make}{" "}
+                                            {vehicle.model}
+                                        </span>
+                                    )}
+
+                                    {booking.job_brief && (
+                                        <span>
+                                            <strong>Problem:</strong> {booking.job_brief}
+                                        </span>
+                                    )}
+
+                                    {isAdmin && booking.users && (
+                                        <span>
+                                            <strong>Owner:</strong> {booking.users.full_name} (
+                                            {booking.users.email})
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="shop-card-links">
+                                    {isAdmin && booking.status === "pending" && (
+                                        <button
+                                            type="button"
+                                            className="primary-button"
+                                            onClick={() => setStatus(booking, "confirmed")}
+                                        >
+                                            Confirm
+                                        </button>
+                                    )}
+
+                                    {isAdmin && booking.status === "confirmed" && (
+                                        <button
+                                            type="button"
+                                            className="primary-button"
+                                            onClick={() => setStatus(booking, "completed")}
+                                        >
+                                            Mark completed
+                                        </button>
+                                    )}
+
+                                    {canCancel && (
+                                        <button
+                                            type="button"
+                                            className="text-button danger"
+                                            onClick={() => setStatus(booking, "cancelled")}
+                                        >
+                                            Cancel booking
+                                        </button>
+                                    )}
+                                </div>
+                            </article>
+                        );
+                    })}
+                </div>
+            </main>
+        </>
+    );
+}
+
+export default Bookings;

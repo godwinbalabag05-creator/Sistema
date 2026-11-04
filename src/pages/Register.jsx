@@ -73,7 +73,7 @@ function Register() {
         </p>
 
         <label htmlFor="fullName">Full name</label>
-        <input/./n                l  
+        <input//n                l  
           id="fullName"
           type="text"
           autoComplete="name"
@@ -85,7 +85,7 @@ function Register() {
 
         <label htmlFor="email">Email</label>
         <input
-          id="email"
+          id="email"  
           type="email"
           autoComplete="email"
           value={email}
