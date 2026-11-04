@@ -1,5 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
+import NotificationBell from "./NotificationBell";
 
 function Navbar() {
   const { user, profile, signOut } = useAuth();
@@ -25,6 +26,8 @@ function Navbar() {
 
         {user && (
           <>
+            <NotificationBell />
+
             <span className="navbar-user">{displayName}</span>
             <button
               type="button"

@@ -35,9 +35,12 @@ function Home() {
                 Start a diagnosis
               </Link>
 
-              <Link to="/shops" className="secondary-button">
+              <button
+                type="button"
+                className="secondary-button"
+              >
                 Find a mechanic
-              </Link>
+              </button>
             </div>
           </div>
 
