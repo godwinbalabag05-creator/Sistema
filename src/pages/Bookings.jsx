@@ -6,6 +6,8 @@ import { StarRating } from "../components/Stars";
 import { ReviewForm } from "../components/Reviews";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../lib/AuthContext";
+import { confirmDialog } from "../lib/confirm";
+import ListSkeleton from "../components/ListSkeleton";
 
 const STATUS_LABEL = {
   pending: "Pending",
@@ -57,11 +59,18 @@ function Bookings() {
   }, []);
 
   async function setStatus(booking, status) {
-    if (
-      status === "cancelled" &&
-      !window.confirm("Cancel this booking?")
-    ) {
-      return;
+    if (status === "cancelled") {
+      const ok = await confirmDialog({
+        title: "Cancel this booking?",
+        message: isAdmin
+          ? "The owner will be notified that this booking was cancelled."
+          : "The shop will be notified. You'd need to send a new request to book again.",
+        confirmLabel: "Cancel booking",
+        cancelLabel: "Keep booking",
+        danger: true,
+      });
+
+      if (!ok) return;
     }
 
     setError("");
@@ -113,7 +122,7 @@ function Bookings() {
         </div>
 
         {error && <p className="form-error">{error}</p>}
-        {loading && <p>Loading bookings...</p>}
+        {loading && <ListSkeleton />}
 
         {!loading && bookings.length === 0 && (
           <div className="empty-state">

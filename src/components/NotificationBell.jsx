@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import NotifIcon from "./NotifIcon";
 import { useNotifications } from "../lib/NotificationContext";
 import { kindOf, timeAgo } from "../lib/notificationUtils";
 
@@ -75,53 +76,56 @@ function NotificationBell() {
         )}
       </button>
 
-      {open && (
-        <div className="bell-panel">
-          <div className="bell-panel-head">
-            <strong>Notifications</strong>
+      {/* Always rendered so it can fade out; hidden items can't be tabbed to */}
+      <div
+        className={`bell-panel ${open ? "is-open" : ""}`}
+        aria-hidden={!open}
+      >
+        <div className="bell-panel-head">
+          <strong>Notifications</strong>
 
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                className="text-button"
-                onClick={markAllRead}
-              >
-                Mark all as read
-              </button>
-            )}
-          </div>
-
-          {latest.length === 0 ? (
-            <p className="bell-empty">You're all caught up.</p>
-          ) : (
-            <ul>
-              {latest.map((item) => (
-                <li key={item.id}>
-                  <button
-                    type="button"
-                    className={`bell-item kind-${kindOf(item.type)} ${item.read_at ? "" : "unread"}`}
-                    onClick={() => openItem(item)}
-                  >
-                    <span className="bell-item-title">{item.title}</span>
-                    <span className="bell-item-body">{item.body}</span>
-                    <span className="bell-item-time">
-                      {timeAgo(item.created_at)}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+          {unreadCount > 0 && (
+            <button
+              type="button"
+              className="text-button"
+              onClick={markAllRead}
+            >
+              Mark all as read
+            </button>
           )}
-
-          <Link
-            to="/mailbox"
-            className="bell-footer"
-            onClick={() => setOpen(false)}
-          >
-            Open mailbox
-          </Link>
         </div>
-      )}
+
+        {latest.length === 0 ? (
+          <p className="bell-empty">You're all caught up.</p>
+        ) : (
+          <ul>
+            {latest.map((item) => (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  className={`bell-item kind-${kindOf(item.type)} ${item.read_at ? "" : "unread"}`}
+                  onClick={() => openItem(item)}
+                >
+                  <NotifIcon type={item.type} />
+                  <span className="bell-item-title">{item.title}</span>
+                  <span className="bell-item-body">{item.body}</span>
+                  <span className="bell-item-time">
+                    {timeAgo(item.created_at)}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <Link
+          to="/mailbox"
+          className="bell-footer"
+          onClick={() => setOpen(false)}
+        >
+          Open mailbox
+        </Link>
+      </div>
     </div>
   );
 }

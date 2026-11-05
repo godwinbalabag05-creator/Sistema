@@ -8,6 +8,8 @@ import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../lib/AuthContext";
 import { useVehicles } from "../lib/VehicleContext";
 import { CATEGORIES, categoryLabel } from "../lib/categories";
+import ListSkeleton from "../components/ListSkeleton";
+
 
 function mapsUrl(shop) {
   const query = [shop.shop_name, shop.address, shop.city]
@@ -216,7 +218,7 @@ function Shops() {
         </div>
 
         {error && <p className="form-error">{error}</p>}
-        {loading && <p>Loading shops...</p>}
+        {loading && <ListSkeleton />}
 
         {!loading && !error && visible.length === 0 && (
           <div className="empty-state">

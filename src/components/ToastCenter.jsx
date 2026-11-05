@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import NotifIcon from "./NotifIcon";
 
 import { useNotifications } from "../lib/NotificationContext";
 import { kindOf } from "../lib/notificationUtils";
@@ -22,6 +23,7 @@ function ToastCenter() {
               if (toast.link) navigate(toast.link);
             }}
           >
+            <NotifIcon type={toast.type} />
             <strong>{toast.title}</strong>
             <span>{toast.body}</span>
           </button>

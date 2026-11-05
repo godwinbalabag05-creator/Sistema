@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import NotifIcon from "../components/NotifIcon";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../lib/AuthContext";
 import { useNotifications } from "../lib/NotificationContext";
 import { kindOf, timeAgo } from "../lib/notificationUtils";
+import ListSkeleton from "../components/ListSkeleton";
+
 
 const SUBTITLE = {
   admin: "New requests and activity across E-Kaniko.",
@@ -78,7 +81,7 @@ function Mailbox() {
           </button>
         </div>
 
-        {loading && <p>Loading messages...</p>}
+        {loading && <ListSkeleton />}
 
         {!loading && visible.length === 0 && (
           <div className="empty-state">
@@ -95,6 +98,8 @@ function Mailbox() {
               key={item.id}
               className={`mail-item kind-${kindOf(item.type)} ${item.read_at ? "" : "unread"}`}
             >
+              <NotifIcon type={item.type} />
+
               <button
                 type="button"
                 className="mail-main"

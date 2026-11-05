@@ -1,11 +1,27 @@
+import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { useAuth } from "../lib/AuthContext";
+
 import NotificationBell from "./NotificationBell";
+import { useAuth } from "../lib/AuthContext";
 
 function Navbar() {
   const { user, profile, signOut } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const displayName = profile?.full_name ?? user?.email;
+  const isAdmin = profile?.role === "admin";
+
+  // Escape closes the mobile menu
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+
+    function onKey(e) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
+
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
 
   return (
     <nav className="navbar">
@@ -13,22 +29,27 @@ function Navbar() {
         E-Kaniko
       </Link>
 
-      <div className="navbar-links">
-        <NavLink to="/">Home</NavLink>
-        <NavLink to="/vehicles">Vehicles</NavLink>
-        <NavLink to="/diagnosis">AI Diagnosis</NavLink>
-        <NavLink to="/shops">Shops</NavLink>
-        <NavLink to="/bookings">Bookings</NavLink>
-
-        {profile?.role === "admin" && (
-          <NavLink to="/admin">Admin</NavLink>
-        )}
+      <div
+        id="main-menu"
+        className={`navbar-menu ${menuOpen ? "is-open" : ""}`}
+        onClick={(e) => {
+          if (e.target.closest("a")) setMenuOpen(false);
+        }}
+      >
+        <div className="navbar-links">
+          <NavLink to="/" end>Home</NavLink>
+          <NavLink to="/vehicles">Vehicles</NavLink>
+          <NavLink to="/diagnosis">AI Diagnosis</NavLink>
+          <NavLink to="/shops">Shops</NavLink>
+          <NavLink to="/bookings">Bookings</NavLink>
+          {isAdmin && <NavLink to="/admin">Admin</NavLink>}
+        </div>
 
         {user && (
-          <>
-            <NotificationBell />
-
+          <div className="navbar-account">
             <span className="navbar-user">{displayName}</span>
+            {isAdmin && <span className="role-tag">Admin</span>}
+
             <button
               type="button"
               className="navbar-logout"
@@ -36,9 +57,24 @@ function Navbar() {
             >
               Log out
             </button>
-          </>
+          </div>
         )}
       </div>
+
+      {user && <NotificationBell />}
+
+      <button
+        type="button"
+        className={`nav-toggle ${menuOpen ? "is-open" : ""}`}
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        aria-expanded={menuOpen}
+        aria-controls="main-menu"
+        onClick={() => setMenuOpen((open) => !open)}
+      >
+        <span />
+        <span />
+        <span />
+      </button>
     </nav>
   );
 }

@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { supabase } from "../lib/supabaseClient";
 import { CATEGORIES, categoryLabel } from "../lib/categories";
+import { confirmDialog } from "../lib/confirm";
+import ListSkeleton from "../components/ListSkeleton";
+import AdminTabs from "../components/AdminTabs";
 
 const EMPTY = {
     shop_name: "",
@@ -96,6 +99,16 @@ function Admin() {
     }
 
     async function toggleVerified(shop) {
+            if (shop.verified) {
+      const ok = await confirmDialog({
+        title: "Remove verification?",
+        message: `${shop.shop_name} will disappear from the owners' shop list until you verify it again.`,
+        confirmLabel: "Remove verification",
+        danger: true,
+      });
+
+      if (!ok) return;
+    }
         const { data, error: updateError } = await supabase
             .from("mechanic_shops")
             .update({ verified: !shop.verified })
@@ -112,7 +125,14 @@ function Admin() {
     }
 
     async function handleDelete(shop) {
-        if (!window.confirm(`Delete ${shop.shop_name}?`)) return;
+    const ok = await confirmDialog({
+      title: "Delete this shop?",
+      message: `${shop.shop_name} and its bookings will be removed. This can't be undone.`,
+      confirmLabel: "Delete shop",
+      danger: true,
+    });
+
+    if (!ok) return;
 
         const { error: deleteError } = await supabase
             .from("mechanic_shops")
@@ -134,6 +154,7 @@ function Admin() {
             <Navbar />
 
             <main className="page">
+                        <AdminTabs />
                 <div className="page-head">
                     <div>
                         <h1>Manage shops</h1>
@@ -261,7 +282,7 @@ function Admin() {
                 )}
 
                 {!showForm && error && <p className="form-error">{error}</p>}
-                {loading && <p>Loading shops...</p>}
+                {loading && <ListSkeleton />}
 
                 <div className="shop-list">
                     {shops.map((shop) => (

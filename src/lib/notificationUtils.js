@@ -17,6 +17,7 @@ export function timeAgo(value) {
 
 // Decides the color stripe of a notification
 export function kindOf(type) {
+  if (type === "user_registered") return "new";
   if (["booking_confirmed", "booking_completed", "shop_verified"].includes(type)) {
     return "good";
   }

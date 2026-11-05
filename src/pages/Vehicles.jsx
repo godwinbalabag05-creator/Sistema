@@ -3,6 +3,9 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import VehicleForm from "../components/VehicleForm";
 import { useVehicles } from "../lib/VehicleContext";
+import { confirmDialog } from "../lib/confirm";
+import ListSkeleton from "../components/ListSkeleton";
+
 
 function Vehicles() {
   const {
@@ -24,13 +27,14 @@ function Vehicles() {
   async function handleDelete(vehicle) {
     const name = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
 
-    if (
-      !window.confirm(
-        `Delete ${name}? Its chats and diagnoses will be deleted too.`
-      )
-    ) {
-      return;
-    }
+    const ok = await confirmDialog({
+      title: "Delete this vehicle?",
+      message: `${name} will be removed together with its chats and diagnoses. This can't be undone.`,
+      confirmLabel: "Delete vehicle",
+      danger: true,
+    });
+
+    if (!ok) return;
 
     await deleteVehicle(vehicle.id);
   }
@@ -57,7 +61,7 @@ function Vehicles() {
           )}
         </div>
 
-        {loading && <p>Loading vehicles...</p>}
+        {loading && <ListSkeleton rows={2} />}
 
         {isAdding && (
           <VehicleForm
