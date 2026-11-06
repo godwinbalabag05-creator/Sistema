@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import { StarRating } from "../components/Stars";
 import { RatingSummary, ReviewList } from "../components/Reviews";
 import { supabase } from "../lib/supabaseClient";

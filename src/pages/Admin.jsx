@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import { supabase } from "../lib/supabaseClient";
 import { CATEGORIES, categoryLabel } from "../lib/categories";
 import { confirmDialog } from "../lib/confirm";
