@@ -63,6 +63,10 @@ function Login() {
         required
       />
 
+      <p className="auth-forgot">
+        <Link to="/forgot-password">Forgot password?</Link>
+      </p>
+
       {error && <p className="form-error">{error}</p>}
 
       <button

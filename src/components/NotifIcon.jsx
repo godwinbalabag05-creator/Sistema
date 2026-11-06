@@ -24,6 +24,12 @@ const ICONS = {
       <path d="m9 9 6 6M15 9l-6 6" />
     </>
   ),
+  phone: (
+    <>
+      <rect x="7" y="2" width="10" height="20" rx="2" />
+      <path d="M11 18h2" />
+    </>
+  ),
   star: <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" />,
 };
 
@@ -36,6 +42,7 @@ const BY_TYPE = {
   shop_verified: "check",
   booking_cancelled: "cross",
   review_new: "star",
+  phone_code: "phone",
 };
 
 function NotifIcon({ type }) {

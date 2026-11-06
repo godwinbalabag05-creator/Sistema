@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
-import Navbar from "../components/Navbar";
+import Navbar from "../components/NavBar";
 import { StarRating } from "../components/Stars";
 import { RatingSummary, ReviewList } from "../components/Reviews";
 import { supabase } from "../lib/supabaseClient";
@@ -121,6 +121,9 @@ function BookingForm({ shop, vehicle, onDone, onCancel }) {
 function Shops() {
   const navigate = useNavigate();
   const { selectedVehicle } = useVehicles();
+  const { profile } = useAuth();
+  const canBook =
+    profile?.role === "admin" || Boolean(profile?.phone_verified_at);
   const [searchParams, setSearchParams] = useSearchParams();
   const category = searchParams.get("category") ?? "";
 
@@ -267,7 +270,9 @@ function Shops() {
                     type="button"
                     className="primary-button"
                     onClick={() => setBookingShopId(shop.id)}
-                    disabled={!selectedVehicle || bookingShopId === shop.id}
+                      disabled={
+                      !selectedVehicle || !canBook || bookingShopId === shop.id
+                    }
                   >
                     Request booking
                   </button>
@@ -306,6 +311,13 @@ function Shops() {
                     Get directions
                   </a>
                 </div>
+
+                {selectedVehicle && !canBook && (
+                  <p className="booking-vehicle">
+                    Verify your phone number to request a booking. Use the
+                    banner at the top of the page.
+                  </p>
+                )}
 
                 {!selectedVehicle && (
                   <p className="booking-vehicle">

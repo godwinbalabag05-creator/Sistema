@@ -6,11 +6,14 @@ import Vehicles from "./pages/Vehicles";
 import Shops from "./pages/Shops";
 import Bookings from "./pages/Bookings";
 import Mailbox from "./pages/Mailbox";
+import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import AuthLayout from "./components/AuthLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GuestRoute from "./components/GuestRoute";
@@ -88,6 +91,15 @@ function App() {
               />
 
               <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
                 path="/admin"
                 element={
                   <ProtectedRoute roles={["admin"]}>
@@ -114,16 +126,37 @@ function App() {
                 }
               />
 
-              {/* Login and register share one layout, so the ad keeps playing */}
-              <Route
-                element={
-                  <GuestRoute>
-                    <AuthLayout />
-                  </GuestRoute>
-                }
-              >
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+              {/* Sign-in screens share one layout, so the ad keeps playing */}
+              <Route element={<AuthLayout />}>
+                <Route
+                  path="/login"
+                  element={
+                    <GuestRoute>
+                      <Login />
+                    </GuestRoute>
+                  }
+                />
+
+                <Route
+                  path="/register"
+                  element={
+                    <GuestRoute>
+                      <Register />
+                    </GuestRoute>
+                  }
+                />
+
+                <Route
+                  path="/forgot-password"
+                  element={
+                    <GuestRoute>
+                      <ForgotPassword />
+                    </GuestRoute>
+                  }
+                />
+
+                {/* No guest check: the email link signs the person in first */}
+                <Route path="/reset-password" element={<ResetPassword />} />
               </Route>
 
               <Route path="*" element={<Navigate to="/" replace />} />

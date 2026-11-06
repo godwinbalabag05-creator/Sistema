@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { supabase } from "./supabaseClient";
 
 const AuthContext = createContext(null);
@@ -55,6 +61,18 @@ export function AuthProvider({ children }) {
     };
   }, [session]);
 
+  const refreshProfile = useCallback(async () => {
+    if (!supabase || !session) return;
+
+    const { data } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", session.user.id)
+      .single();
+
+    if (data) setProfile(data);
+  }, [session]);
+
   async function signOut() {
     if (supabase) await supabase.auth.signOut();
   }
@@ -65,6 +83,7 @@ export function AuthProvider({ children }) {
     profile,
     loading,
     signOut,
+    refreshProfile,
   };
 
   return (

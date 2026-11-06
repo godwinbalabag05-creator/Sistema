@@ -23,6 +23,24 @@ const CONTENT = {
       </ol>
     ),
   },
+  "/forgot-password": {
+    title: "Locked out? It happens.",
+    aside: (
+      <p>
+        Enter the email you registered with and we'll send you a link to set
+        a new password.
+      </p>
+    ),
+  },
+  "/reset-password": {
+    title: "Choose a new password.",
+    aside: (
+      <p>
+        Pick one you haven't used before. You'll be signed in as soon as it's
+        saved.
+      </p>
+    ),
+  },
 };
 
 function AuthLayout() {
