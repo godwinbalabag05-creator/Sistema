@@ -23,6 +23,7 @@ import ConfirmHost from "./components/ConfirmHost";
 import { AuthProvider } from "./lib/AuthContext";
 import { NotificationProvider } from "./lib/NotificationContext";
 import { VehicleProvider } from "./lib/VehicleContext";
+import EmailConfirmed from "./pages/EmailConfirmed";
 
 function App() {
   return (
@@ -159,7 +160,10 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
               </Route>
 
-              <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+
+                {/* No guest check: the email link signs the person in first */}
+                <Route path="/email-confirmed" element={<EmailConfirmed />} />
             </Routes>
           </VehicleProvider>
         </NotificationProvider>

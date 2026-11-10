@@ -4,6 +4,17 @@ import Modal from "./Modal";
 import { supabase } from "../lib/supabaseClient";
 import { formatPhone, normalizePhone } from "../lib/phone";
 
+async function messageFrom(error) {
+  try {
+    const body = await error.context.json();
+    if (body?.error) return body.error;
+  } catch {
+    // keep the default message
+  }
+
+  return error.message;
+}
+
 function PhoneVerifyModal({ open, onClose, initialPhone = "", onVerified }) {
   const [step, setStep] = useState("phone");
   const [phone, setPhone] = useState("");
@@ -11,6 +22,7 @@ function PhoneVerifyModal({ open, onClose, initialPhone = "", onVerified }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [mode, setMode] = useState("sms");
 
   // Start fresh every time the window opens
   useEffect(() => {
@@ -43,17 +55,24 @@ function PhoneVerifyModal({ open, onClose, initialPhone = "", onVerified }) {
     setError("");
     setBusy(true);
 
-    const { error: sendError } = await supabase.rpc("request_phone_otp", {
-      p_phone: normalized,
-    });
+    const { data, error: sendError } = await supabase.functions.invoke(
+      "send-phone-code",
+      { body: { phone: normalized } }
+    );
 
     setBusy(false);
 
     if (sendError) {
-      setError(sendError.message);
+      setError(await messageFrom(sendError));
       return;
     }
 
+    if (data?.error) {
+      setError(data.error);
+      return;
+    }
+
+    setMode(data?.mode ?? "sms");
     setPhone(normalized);
     setCode("");
     setCooldown(60);
@@ -120,7 +139,7 @@ function PhoneVerifyModal({ open, onClose, initialPhone = "", onVerified }) {
       >
         <p className="modal-text">
           Shops use your number to confirm that a booking is real. We'll send
-          a 6-digit code to it.
+          a 6-digit code to it by text message.
         </p>
 
         <label htmlFor="verify-phone">Mobile number</label>
@@ -176,11 +195,17 @@ function PhoneVerifyModal({ open, onClose, initialPhone = "", onVerified }) {
 
         {error && <p className="form-error">{error}</p>}
 
-        <p className="demo-note">
-          Demo mode: the code arrives as an E-Kaniko notification. Look for
-          the pop-up at the bottom right, or the bell. In the live version
-          it is sent by SMS.
-        </p>
+        {mode === "demo" ? (
+          <p className="demo-note">
+            Demo mode: the code arrives as an E-Kaniko notification. Look for
+            the pop-up at the bottom right, or the bell.
+          </p>
+        ) : (
+          <p className="demo-note">
+            We sent a text message to {formatPhone(phone)}. It can take up to
+            a minute to arrive.
+          </p>
+        )}
       </form>
     );
 

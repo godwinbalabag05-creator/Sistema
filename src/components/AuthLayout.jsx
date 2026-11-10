@@ -32,6 +32,15 @@ const CONTENT = {
       </p>
     ),
   },
+    "/email-confirmed": {
+    title: "You're all set.",
+    aside: (
+      <p>
+        Your email is confirmed. Add your vehicle and start your first
+        diagnosis whenever you're ready.
+      </p>
+    ),
+  },
   "/reset-password": {
     title: "Choose a new password.",
     aside: (
