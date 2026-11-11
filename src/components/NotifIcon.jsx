@@ -41,6 +41,9 @@ const BY_TYPE = {
   booking_completed: "check",
   shop_verified: "check",
   booking_cancelled: "cross",
+  booking_declined: "cross",
+  booking_forwarded: "calendar",
+  booking_report: "check",
   review_new: "star",
   phone_code: "phone",
 };

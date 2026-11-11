@@ -11,6 +11,7 @@ function Navbar() {
 
   const displayName = profile?.full_name ?? user?.email;
   const isAdmin = profile?.role === "admin";
+  const isMechanic = profile?.role === "mechanic";
 
   // Escape closes the mobile menu
   useEffect(() => {
@@ -39,12 +40,18 @@ function Navbar() {
           }}
         >
           <div className="navbar-links">
-            <NavLink to="/" end>Home</NavLink>
-            <NavLink to="/vehicles">Vehicles</NavLink>
-            <NavLink to="/diagnosis">AI Diagnosis</NavLink>
-            <NavLink to="/shops">Shops</NavLink>
-            <NavLink to="/bookings">Bookings</NavLink>
-            {isAdmin && <NavLink to="/admin">Admin</NavLink>}
+            {isMechanic ? (
+              <NavLink to="/mechanic">My jobs</NavLink>
+            ) : (
+              <>
+                <NavLink to="/" end>Home</NavLink>
+                <NavLink to="/vehicles">Vehicles</NavLink>
+                <NavLink to="/diagnosis">AI Diagnosis</NavLink>
+                <NavLink to="/shops">Shops</NavLink>
+                <NavLink to="/bookings">Bookings</NavLink>
+                {isAdmin && <NavLink to="/admin">Admin</NavLink>}
+              </>
+            )}
           </div>
 
           {user && (
@@ -53,6 +60,7 @@ function Navbar() {
                 {displayName}
               </Link>
               {isAdmin && <span className="role-tag">Admin</span>}
+              {isMechanic && <span className="role-tag">Mechanic</span>}
 
               <button
                 type="button"

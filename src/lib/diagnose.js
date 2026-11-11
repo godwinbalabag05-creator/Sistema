@@ -1,10 +1,10 @@
 import { supabase } from "./supabaseClient";
 
-export async function diagnose(messages, vehicle) {
+export async function diagnose(messages, vehicle, image = null) {
   if (!supabase) throw new Error("Supabase is not connected.");
 
   const { data, error } = await supabase.functions.invoke("diagnose", {
-    body: { messages, vehicle },
+    body: { messages, vehicle, image },
   });
 
   if (error) {

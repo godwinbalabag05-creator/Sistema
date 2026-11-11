@@ -21,7 +21,7 @@ export function kindOf(type) {
   if (["booking_confirmed", "booking_completed", "shop_verified"].includes(type)) {
     return "good";
   }
-  if (type === "booking_cancelled") return "bad";
+  if (type === "booking_cancelled" || type === "booking_declined") return "bad";
   if (type === "review_new") return "star";
   return "info";
 }

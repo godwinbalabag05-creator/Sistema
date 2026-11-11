@@ -10,20 +10,32 @@ import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
+import MechanicDashboard from "./pages/MechanicDashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import EmailConfirmed from "./pages/EmailConfirmed";
 import AuthLayout from "./components/AuthLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GuestRoute from "./components/GuestRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import ToastCenter from "./components/ToastCenter";
 import ConfirmHost from "./components/ConfirmHost";
-import { AuthProvider } from "./lib/AuthContext";
+import { AuthProvider, useAuth } from "./lib/AuthContext";
 import { NotificationProvider } from "./lib/NotificationContext";
 import { VehicleProvider } from "./lib/VehicleContext";
-import EmailConfirmed from "./pages/EmailConfirmed";
+
+// Mechanics start on their own dashboard
+function RoleHome() {
+  const { profile } = useAuth();
+
+  if (profile?.role === "mechanic") {
+    return <Navigate to="/mechanic" replace />;
+  }
+
+  return <Home />;
+}
 
 function App() {
   return (
@@ -41,7 +53,7 @@ function App() {
                 path="/"
                 element={
                   <ProtectedRoute>
-                    <Home />
+                    <RoleHome />
                   </ProtectedRoute>
                 }
               />
@@ -96,6 +108,15 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Profile />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/mechanic"
+                element={
+                  <ProtectedRoute roles={["mechanic"]}>
+                    <MechanicDashboard />
                   </ProtectedRoute>
                 }
               />
@@ -158,12 +179,10 @@ function App() {
 
                 {/* No guest check: the email link signs the person in first */}
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/email-confirmed" element={<EmailConfirmed />} />
               </Route>
 
-                <Route path="/reset-password" element={<ResetPassword />} />
-
-                {/* No guest check: the email link signs the person in first */}
-                <Route path="/email-confirmed" element={<EmailConfirmed />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </VehicleProvider>
         </NotificationProvider>

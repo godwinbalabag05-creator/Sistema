@@ -6,6 +6,7 @@ import { CATEGORIES, categoryLabel } from "../lib/categories";
 import { confirmDialog } from "../lib/confirm";
 import ListSkeleton from "../components/ListSkeleton";
 import AdminTabs from "../components/AdminTabs";
+import MechanicAssign from "../components/MechanicAssign";
 
 const EMPTY = {
     shop_name: "",
@@ -311,7 +312,9 @@ function Admin() {
                                 </ul>
                             )}
 
-                            <div className="shop-card-links">
+              <MechanicAssign shop={shop} />
+
+              <div className="shop-card-links">
                                 <button
                                     type="button"
                                     className="text-button"

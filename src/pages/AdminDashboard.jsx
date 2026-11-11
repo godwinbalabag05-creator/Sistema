@@ -5,14 +5,19 @@ import Navbar from "../components/Navbar";
 import AdminTabs from "../components/AdminTabs";
 import { supabase } from "../lib/supabaseClient";
 import { timeAgo } from "../lib/notificationUtils";
+import { statusLabel } from "../lib/bookingStatus";
 
 const DAY = 24 * 60 * 60 * 1000;
 
 const ROLE_LABEL = { user: "Owner", mechanic: "Mechanic", admin: "Admin" };
 
 const STATUSES = [
-  { key: "pending", label: "Pending" },
-  { key: "confirmed", label: "Confirmed" },
+  { key: "pending", label: "Pending review" },
+  { key: "forwarded", label: "Sent to shop" },
+  { key: "confirmed", label: "Accepted" },
+  { key: "in_progress", label: "In progress" },
+  { key: "awaiting_review", label: "Awaiting admin" },
+  { key: "declined", label: "Declined" },
   { key: "completed", label: "Completed" },
   { key: "cancelled", label: "Cancelled" },
 ];
@@ -105,7 +110,7 @@ function AdminDashboard() {
 
     const shopsVerified = data.shops.filter((shop) => shop.verified).length;
 
-    const byStatus = { pending: 0, confirmed: 0, completed: 0, cancelled: 0 };
+    const byStatus = Object.fromEntries(STATUSES.map((s) => [s.key, 0]));
     for (const booking of data.bookings) {
       byStatus[booking.status] = (byStatus[booking.status] ?? 0) + 1;
     }
@@ -348,14 +353,14 @@ function AdminDashboard() {
 
                         <div className="mini-side">
                           <span className={`status-chip ${booking.status}`}>
-                            {booking.status}
+                            {statusLabel(booking.status)}
                           </span>
                           <span className="mini-time">
                             {timeAgo(booking.created_at)}
                           </span>
                         </div>
                       </li>
-                    ))}
+                    ))} 
                   </ul>
                 )}
               </section>

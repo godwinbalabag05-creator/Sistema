@@ -1940,3 +1940,65 @@ a.navbar-user:hover { text-decoration-color: var(--yellow); }
 }
 .auth-form .verify-check { margin-bottom: 18px; }
 .verify-check.warn { background: #fbeed2; color: #7a4b06; }
+
+/* =========================================================
+   MECHANIC WORKFLOW AND PHOTO INPUT
+   ========================================================= */
+
+/* Status chips for the new booking steps */
+.status-chip.forwarded { background: #e4e9f5; color: #1d2a47; }
+.status-chip.in_progress { background: var(--yellow); color: var(--ink); }
+.status-chip.awaiting_review { background: #fbeed2; color: #7a4b06; }
+.status-chip.declined { background: #fbe9e9; color: #8f1f1f; }
+.status-row { grid-template-columns: 120px minmax(0, 1fr) 28px; }
+.status-track .s-forwarded { background: var(--ink); }
+.status-track .s-in_progress { background: var(--yellow); }
+.status-track .s-awaiting_review { background: var(--amber); }
+.status-track .s-declined { background: var(--red); }
+
+/* Admin: forward a request, and shop assignment */
+.forward-box { margin-top: 14px; padding: 14px 16px; border: 1px solid var(--ink); border-left: 5px solid var(--yellow); border-radius: 0 6px 6px 0; background: var(--surface); }
+.forward-box label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; }
+.forward-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.forward-row select { flex: 1 1 220px; min-width: 0; padding: 11px 13px; border: 1px solid var(--steel); border-radius: 4px; background: #fff; color: var(--ink); font-size: 0.93rem; transition: border-color 0.18s ease, box-shadow 0.18s ease; }
+.forward-row select:hover { border-color: var(--ink); }
+.forward-row select:focus { border-color: var(--ink); box-shadow: 0 0 0 4px rgba(247, 198, 0, 0.38); outline: 2px solid transparent; }
+.forward-note { margin: 10px 0 0; color: var(--steel); font-size: 0.82rem; }
+
+.assign-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); }
+.assign-row label { font-size: 0.85rem; font-weight: 600; }
+.assign-row select { padding: 7px 10px; border: 1px solid var(--steel); border-radius: 4px; background: #fff; color: var(--ink); font-size: 0.88rem; }
+.assign-saved { color: var(--green); font-size: 0.8rem; font-weight: 700; }
+.assign-error { color: var(--red); font-size: 0.8rem; }
+.assign-hint { flex-basis: 100%; margin: 0; color: var(--steel); font-size: 0.8rem; }
+
+/* Reports and decline reasons */
+.report-box { margin-top: 14px; padding: 14px 16px; border-left: 5px solid var(--yellow); background: var(--bg); }
+.report-box.warn { border-left-color: var(--red); }
+.report-box h4 { margin: 0 0 6px; font: 700 1.1rem/1.1 var(--display); }
+.report-box p { margin: 0; color: var(--steel); font-size: 0.9rem; line-height: 1.55; overflow-wrap: anywhere; }
+.report-meta { display: block; margin-top: 8px; color: var(--steel); font-size: 0.78rem; }
+
+.modal-body textarea { display: block; width: 100%; margin-top: 4px; padding: 12px 14px; border: 1px solid var(--steel); border-radius: 4px; background: #fff; color: var(--ink); font-size: 0.95rem; line-height: 1.5; resize: vertical; transition: border-color 0.18s ease, box-shadow 0.18s ease; }
+.modal-body textarea:hover { border-color: var(--ink); }
+.modal-body textarea:focus { border-color: var(--ink); box-shadow: 0 0 0 4px rgba(247, 198, 0, 0.38); outline: 2px solid transparent; }
+
+/* Photo input (AI Diagnosis page only) */
+.photo-box { margin: 0 0 18px; padding: 14px 16px; border: 1px dashed var(--steel); border-radius: 6px; background: var(--bg); }
+.photo-label { display: block; margin-bottom: 10px; font-size: 0.9rem; font-weight: 600; }
+.photo-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.photo-actions .secondary-button { min-height: 40px; padding: 0 14px; font-size: 0.85rem; }
+.photo-preview { display: grid; gap: 12px; }
+.photo-preview img { display: block; width: 100%; max-width: 320px; max-height: 240px; border: 1px solid var(--ink); border-radius: 4px; object-fit: cover; }
+.photo-hint { margin: 10px 0 0; color: var(--steel); font-size: 0.8rem; line-height: 1.5; }
+.photo-box .form-error { margin: 10px 0 0; }
+.camera-view { overflow: hidden; border-radius: 4px; background: #000; }
+.camera-view video { display: block; width: 100%; max-height: 60vh; object-fit: cover; }
+.chat-bubble.photo-bubble { padding: 6px; }
+.chat-photo { display: block; max-width: 220px; max-height: 160px; border-radius: 4px; object-fit: cover; }
+.photo-note { margin: 14px 28px 0; padding: 10px 12px; border-left: 4px solid var(--amber); background: var(--bg); color: var(--steel); font-size: 0.85rem; }
+
+@media (max-width: 640px) {
+  .photo-actions .secondary-button { flex: 1 1 140px; }
+  .forward-row .primary-button { width: 100%; }
+}

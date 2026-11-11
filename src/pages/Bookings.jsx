@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { Link, Navigate } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
 import ListSkeleton from "../components/ListSkeleton";
@@ -9,13 +9,7 @@ import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../lib/AuthContext";
 import { confirmDialog } from "../lib/confirm";
 import { formatPhone } from "../lib/phone";
-
-const STATUS_LABEL = {
-  pending: "Pending",
-  confirmed: "Confirmed",
-  completed: "Completed",
-  cancelled: "Cancelled",
-};
+import { statusLabel } from "../lib/bookingStatus";
 
 function formatDate(value) {
   return new Date(value).toLocaleString("en-PH", {
@@ -28,74 +22,154 @@ function mapsLink(address) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 }
 
+function ForwardControl({ booking, shops, busy, onForward }) {
+  const choices = shops.filter((shop) => shop.verified);
+
+  const [shopId, setShopId] = useState(
+    choices.some((shop) => shop.id === booking.shop_id) ? booking.shop_id : ""
+  );
+
+  const selected = choices.find((shop) => shop.id === shopId);
+  const original = shops.find((shop) => shop.id === booking.shop_id);
+  const ready = Boolean(selected && selected.mechanic_id);
+
+  return (
+    <div className="forward-box">
+      <label htmlFor={`forward-${booking.id}`}>
+        {booking.status === "declined" ? "Forward to another shop" : "Forward to shop"}
+      </label>
+
+      <div className="forward-row">
+        <select
+          id={`forward-${booking.id}`}
+          value={shopId}
+          onChange={(e) => setShopId(e.target.value)}
+        >
+          <option value="">Choose a shop</option>
+          {choices.map((shop) => (
+            <option key={shop.id} value={shop.id} disabled={!shop.mechanic_id}>
+              {shop.shop_name}
+              {shop.city ? `, ${shop.city}` : ""}
+              {!shop.mechanic_id ? " (no mechanic assigned)" : ""}
+            </option>
+          ))}
+        </select>
+
+        <button
+          type="button"
+          className="primary-button"
+          disabled={!ready || busy}
+          onClick={() => onForward(booking, shopId)}
+        >
+          {busy ? "Forwarding..." : "Forward"}
+        </button>
+      </div>
+
+      {original && shopId && shopId !== booking.shop_id && (
+        <p className="forward-note">
+          The customer chose {original.shop_name}. You are sending this request
+          to a different shop.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function Bookings() {
   const { user, profile } = useAuth();
   const isAdmin = profile?.role === "admin";
-  const canManage = isAdmin || profile?.role === "mechanic";
 
   const [bookings, setBookings] = useState([]);
+  const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reviewingId, setReviewingId] = useState(null);
+  const [busyId, setBusyId] = useState(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!supabase) {
       setLoading(false);
-      return undefined;
+      return;
     }
 
-    let ignore = false;
+    const [bookingRes, shopRes] = await Promise.all([
+      supabase
+        .from("bookings")
+        .select(
+          "*, mechanic_shops(shop_name, address, city, phone), vehicles(year, make, model), users(full_name, email), shop_reviews(id, rating, comment, created_at, author_name)"
+        )
+        .order("created_at", { ascending: false }),
+      isAdmin
+        ? supabase
+            .from("mechanic_shops")
+            .select("id, shop_name, city, verified, mechanic_id")
+        : Promise.resolve({ data: [] }),
+    ]);
 
-    supabase
-      .from("bookings")
-      .select(
-        "*, mechanic_shops(shop_name, address, city, phone), vehicles(year, make, model), users(full_name, email), shop_reviews(id, rating, comment, created_at, author_name)"
-      )
-      .order("created_at", { ascending: false })
-      .then(({ data, error: loadError }) => {
-        if (ignore) return;
-        if (loadError) setError(loadError.message);
-        setBookings(data ?? []);
-        setLoading(false);
-      });
+    if (bookingRes.error) setError(bookingRes.error.message);
+    setBookings(bookingRes.data ?? []);
+    setShops(shopRes.data ?? []);
+    setLoading(false);
+  }, [isAdmin]);
 
-    return () => {
-      ignore = true;
-    };
-  }, []);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  async function setStatus(booking, status) {
-    if (status === "cancelled") {
-      const mine = booking.owner_id === user?.id;
+  // Mechanics work from their own dashboard
+  if (profile?.role === "mechanic") {
+    return <Navigate to="/mechanic" replace />;
+  }
 
-      const ok = await confirmDialog({
-        title: "Cancel this booking?",
-        message: mine
-          ? "The shop will be notified. You'd need to send a new request to book again."
-          : "The customer will be notified that this booking was cancelled.",
-        confirmLabel: "Cancel booking",
-        cancelLabel: "Keep booking",
-        danger: true,
-      });
-
-      if (!ok) return;
-    }
-
+  async function update(booking, values) {
+    setBusyId(booking.id);
     setError("");
 
     const { error: updateError } = await supabase
       .from("bookings")
-      .update({ status })
+      .update(values)
       .eq("id", booking.id);
+
+    setBusyId(null);
 
     if (updateError) {
       setError(updateError.message);
-      return;
+      return false;
     }
 
-    setBookings((current) =>
-      current.map((b) => (b.id === booking.id ? { ...b, status } : b))
-    );
+    await load();
+    return true;
+  }
+
+  async function cancelBooking(booking) {
+    const mine = booking.owner_id === user?.id;
+
+    const ok = await confirmDialog({
+      title: "Cancel this booking?",
+      message: mine
+        ? "The shop will be notified. You'd need to send a new request to book again."
+        : "The customer will be notified that this booking was cancelled.",
+      confirmLabel: "Cancel booking",
+      cancelLabel: "Keep booking",
+      danger: true,
+    });
+
+    if (ok) await update(booking, { status: "cancelled" });
+  }
+
+  async function confirmCompletion(booking) {
+    const ok = await confirmDialog({
+      title: "Confirm completion?",
+      message:
+        "You've reviewed the mechanic's report. The customer will be notified that the service is complete and can leave a review.",
+      confirmLabel: "Confirm completion",
+    });
+
+    if (ok) await update(booking, { status: "completed" });
+  }
+
+  function forwardBooking(booking, shopId) {
+    return update(booking, { status: "forwarded", shop_id: shopId });
   }
 
   function handleReviewed(booking, review) {
@@ -114,21 +188,15 @@ function Bookings() {
       <main className="page">
         <div className="page-head">
           <div>
-            <h1>
-              {isAdmin
-                ? "All bookings"
-                : canManage
-                  ? "Shop bookings"
-                  : "Your bookings"}
-            </h1>
+            <h1>{isAdmin ? "All bookings" : "Your bookings"}</h1>
             <p>
-              {canManage
-                ? "Contact the customer, confirm requests, and mark finished jobs as completed."
+              {isAdmin
+                ? "Review new requests, forward them to a shop, and confirm finished jobs."
                 : "Requests you sent to repair shops, and their status."}
             </p>
           </div>
 
-          {!canManage && (
+          {!isAdmin && (
             <Link to="/shops" className="primary-button">
               Find a mechanic
             </Link>
@@ -141,11 +209,7 @@ function Bookings() {
         {!loading && bookings.length === 0 && (
           <div className="empty-state">
             <h2>No bookings yet</h2>
-            <p>
-              {canManage
-                ? "New booking requests will show up here."
-                : "Pick a shop and send a request to see it here."}
-            </p>
+            <p>Pick a shop and send a request to see it here.</p>
           </div>
         )}
 
@@ -153,8 +217,7 @@ function Bookings() {
           {bookings.map((booking) => {
             const shop = booking.mechanic_shops;
             const vehicle = booking.vehicles;
-            const canCancel =
-              booking.status === "pending" || booking.status === "confirmed";
+            const busy = busyId === booking.id;
 
             const isMine = booking.owner_id === user?.id;
             const review = Array.isArray(booking.shop_reviews)
@@ -162,6 +225,20 @@ function Bookings() {
               : booking.shop_reviews;
             const canReview =
               isMine && booking.status === "completed" && !review;
+
+            const canCancel = isAdmin
+              ? [
+                  "pending",
+                  "forwarded",
+                  "declined",
+                  "confirmed",
+                  "in_progress",
+                  "awaiting_review",
+                ].includes(booking.status)
+              : isMine &&
+                ["pending", "forwarded", "declined", "confirmed"].includes(
+                  booking.status
+                );
 
             const customerName =
               booking.customer_name || booking.users?.full_name || "Not provided";
@@ -181,7 +258,7 @@ function Bookings() {
                   </div>
 
                   <span className={`status-chip ${booking.status}`}>
-                    {STATUS_LABEL[booking.status]}
+                    {statusLabel(booking.status, !isAdmin)}
                   </span>
                 </div>
 
@@ -247,6 +324,42 @@ function Bookings() {
                   </dl>
                 </div>
 
+                {isAdmin && booking.status === "declined" && (
+                  <div className="report-box warn">
+                    <h4>Declined by {shop?.shop_name ?? "the shop"}</h4>
+                    <p>{booking.decline_reason || "No reason given."}</p>
+                  </div>
+                )}
+
+                {isAdmin && booking.completion_report && (
+                  <div className="report-box">
+                    <h4>Mechanic's completion report</h4>
+                    <p>{booking.completion_report}</p>
+                    {booking.report_submitted_at && (
+                      <span className="report-meta">
+                        Submitted {formatDate(booking.report_submitted_at)}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {isAdmin && (booking.status === "pending" || booking.status === "declined") && (
+                  <ForwardControl
+                    key={`${booking.id}-${booking.status}`}
+                    booking={booking}
+                    shops={shops}
+                    busy={busy}
+                    onForward={forwardBooking}
+                  />
+                )}
+
+                {isAdmin && booking.status === "forwarded" && (
+                  <p className="booking-vehicle">
+                    Waiting for {shop?.shop_name ?? "the shop"}'s mechanic to
+                    accept or decline.
+                  </p>
+                )}
+
                 {review && (
                   <div className="review-inline">
                     <div className="review-inline-head">
@@ -263,23 +376,14 @@ function Bookings() {
                 )}
 
                 <div className="shop-card-links">
-                  {canManage && booking.status === "pending" && (
+                  {isAdmin && booking.status === "awaiting_review" && (
                     <button
                       type="button"
                       className="primary-button"
-                      onClick={() => setStatus(booking, "confirmed")}
+                      disabled={busy}
+                      onClick={() => confirmCompletion(booking)}
                     >
-                      Confirm
-                    </button>
-                  )}
-
-                  {canManage && booking.status === "confirmed" && (
-                    <button
-                      type="button"
-                      className="primary-button"
-                      onClick={() => setStatus(booking, "completed")}
-                    >
-                      Mark completed
+                      Confirm completion
                     </button>
                   )}
 
@@ -297,7 +401,8 @@ function Bookings() {
                     <button
                       type="button"
                       className="text-button danger"
-                      onClick={() => setStatus(booking, "cancelled")}
+                      disabled={busy}
+                      onClick={() => cancelBooking(booking)}
                     >
                       Cancel booking
                     </button>

@@ -8,7 +8,7 @@ function VerifyBanner() {
   const [open, setOpen] = useState(false);
 
   const needsVerification =
-    profile && profile.role !== "admin" && !profile.phone_verified_at;
+    profile && profile.role === "user" && !profile.phone_verified_at;
 
   return (
     <>

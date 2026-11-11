@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
+import PhotoInput from "../components/PhotoInput";
 import { diagnose } from "../lib/diagnose";
 import { useVehicles } from "../lib/VehicleContext";
 
@@ -16,6 +17,8 @@ function Diagnosis() {
 
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const [photo, setPhoto] = useState(null);
+  const [photoNote, setPhotoNote] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
@@ -34,7 +37,13 @@ function Diagnosis() {
     setIsAnalyzing(true);
 
     try {
-      const reply = await diagnose(nextMessages, selectedVehicle);
+      const reply = await diagnose(nextMessages, selectedVehicle, photo);
+
+      if (photo && reply.image_used === false) {
+        setPhotoNote(
+          "The AI couldn't read your photo this time, so this result is based on your description only."
+        );
+      }
 
       if (reply.type === "diagnosis") {
         setResult(reply);
@@ -55,6 +64,8 @@ function Diagnosis() {
   function handleReset() {
     setMessages([]);
     setInput("");
+    setPhoto(null);
+    setPhotoNote("");
     setResult(null);
     setError("");
   }
@@ -101,6 +112,12 @@ function Diagnosis() {
         {/* Conversation */}
         {selectedVehicle && messages.length > 0 && (
           <section className="chat-thread">
+            {photo && (
+              <div className="chat-bubble user photo-bubble">
+                <img src={photo} alt="Photo you added" className="chat-photo" />
+              </div>
+            )}
+
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -161,6 +178,14 @@ function Diagnosis() {
               </div>
             )}
 
+            {isFirstMessage && (
+              <PhotoInput
+                photo={photo}
+                onChange={setPhoto}
+                disabled={isAnalyzing}
+              />
+            )}
+
             {error && (
               <p className="form-error">{error}</p>
             )}
@@ -196,6 +221,8 @@ function Diagnosis() {
               </span>
 
             </div>
+
+            {photoNote && <p className="photo-note">{photoNote}</p>}
 
             <p>{result.summary}</p>
 
