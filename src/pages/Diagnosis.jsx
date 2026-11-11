@@ -274,6 +274,13 @@ function Diagnosis() {
 
             </div>
 
+            {result.diagnosis_id && (
+              <p className="saved-note">
+                Saved to your diagnosis history. You can open it any time from
+                your dashboard.
+              </p>
+            )}
+
             <p className="diagnosis-disclaimer">
               This is an AI-generated estimate, not a
               substitute for a certified mechanic's

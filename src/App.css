@@ -2002,3 +2002,16 @@ a.navbar-user:hover { text-decoration-color: var(--yellow); }
   .photo-actions .secondary-button { flex: 1 1 140px; }
   .forward-row .primary-button { width: 100%; }
 }
+
+/* ---------- Saved diagnoses ---------- */
+
+.diagnosis-meta { display: block; margin-top: 6px; color: var(--steel); font-size: 0.8rem; }
+.saved-note { margin: 18px 28px 0; color: var(--green); font-size: 0.85rem; font-weight: 600; }
+
+.diagnosis-detail { display: grid; gap: 4px; }
+.diagnosis-detail-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 8px; }
+.diagnosis-detail-top .diagnosis-meta { margin-top: 0; }
+.diagnosis-detail h3 { margin: 16px 0 4px; font: 700 1.1rem/1 var(--display); }
+.diagnosis-detail ul { margin: 0; padding-left: 18px; color: var(--steel); font-size: 0.92rem; line-height: 1.6; }
+.diagnosis-detail .driving-advice { margin: 12px 0 0; }
+.diagnosis-detail .diagnosis-disclaimer { margin: 16px 0 0; }

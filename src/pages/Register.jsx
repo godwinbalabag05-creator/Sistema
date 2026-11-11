@@ -69,7 +69,7 @@ function Register() {
         autoComplete="name"
         value={fullName}
         onChange={(e) => setFullName(e.target.value)}
-        placeholder="Gopaks, Tonix, Vincent"
+        placeholder="Gopaks, Tonix, Vincent, Anfernny"
         required
       />
 

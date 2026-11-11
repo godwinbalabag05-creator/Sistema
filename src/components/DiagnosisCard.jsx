@@ -1,4 +1,4 @@
-function DiagnosisCard({ title, description, severity }) {
+function DiagnosisCard({ title, description, severity, meta, onOpen }) {
   return (
     <div className="diagnosis-card">
       <div className="diagnosis-header">
@@ -9,9 +9,11 @@ function DiagnosisCard({ title, description, severity }) {
         </span>
       </div>
 
+      {meta && <span className="diagnosis-meta">{meta}</span>}
+
       <p>{description}</p>
 
-      <button type="button">
+      <button type="button" onClick={onOpen}>
         View Details
       </button>
     </div>
