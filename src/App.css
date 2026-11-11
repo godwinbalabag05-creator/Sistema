@@ -1780,6 +1780,57 @@ a.navbar-user:hover { text-decoration-color: var(--yellow); }
 .verify-banner p { margin: 0; }
 .verify-banner .secondary-button { min-height: 36px; padding: 0 14px; font-size: 0.85rem; }
 
+
+/* =========================================================
+   BOOKING CONTACT DETAILS, SERVICE ADDRESS, BEST MATCHES
+   ========================================================= */
+
+.settings-card textarea {
+  display: block;
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 11px 13px;
+  border: 1px solid var(--steel);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.93rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.settings-card textarea:hover { border-color: var(--ink); }
+.settings-card textarea:focus { border-color: var(--ink); box-shadow: 0 0 0 4px rgba(247, 198, 0, 0.38); outline: 2px solid transparent; }
+
+/* Booking form extras */
+.share-note { margin: 0 0 14px; padding: 10px 12px; border-left: 4px solid var(--yellow); background: var(--bg); color: var(--steel); font-size: 0.82rem; line-height: 1.5; }
+.booking-form .check-row { display: flex; align-items: center; gap: 8px; margin: -4px 0 14px; font-weight: 500; cursor: pointer; }
+.booking-form .check-row input { width: auto; margin: 0; }
+
+/* Customer box on bookings */
+.customer-box { margin-top: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
+.customer-box h4 { margin: 0 0 6px; font: 700 1.1rem/1.1 var(--display); }
+.customer-box dl { display: grid; margin: 0; }
+.customer-box dl div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; padding: 8px 0; border-top: 1px dashed var(--line); font-size: 0.9rem; }
+.customer-box dl div:first-child { border-top: 0; }
+.customer-box dt { color: var(--steel); }
+.customer-box dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+.customer-box dd a { text-decoration: underline; text-decoration-color: var(--yellow); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.customer-box .map-link { margin-left: 10px; font-size: 0.82rem; font-weight: 600; }
+
+/* Best matches */
+.shop-group + .shop-group { margin-top: 32px; }
+.group-title { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font: 700 1.5rem/1.1 var(--display); }
+.group-title span { padding: 1px 9px; border-radius: 999px; background: var(--ink); color: #fff; font: 600 0.78rem/1.6 "IBM Plex Sans", sans-serif; }
+.shop-card.is-match { border-color: var(--ink); border-left: 5px solid var(--yellow); }
+.match-badge { display: inline-block; margin-left: 10px; padding: 2px 10px; border-radius: 999px; background: var(--yellow); color: var(--ink); font: 700 0.72rem/1.5 "IBM Plex Sans", sans-serif; vertical-align: middle; }
+.notice-box { max-width: 850px; margin: 0 0 18px; padding: 12px 16px; border-left: 5px solid var(--amber); border-radius: 0 6px 6px 0; background: var(--surface); font-size: 0.9rem; }
+
+@media (max-width: 640px) {
+  .customer-box dl div { grid-template-columns: 1fr; gap: 2px; }
+}
+
 /* Verification window */
 .modal-body label { display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; }
 

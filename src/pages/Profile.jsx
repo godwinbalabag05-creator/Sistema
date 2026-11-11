@@ -6,6 +6,7 @@ import PhoneVerifyModal from "../components/PhoneVerifyModal";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../lib/AuthContext";
 import { formatPhone } from "../lib/phone";
+import AddressCard from "../components/AddressCard";
 
 const ROLE_LABEL = { user: "Owner", mechanic: "Mechanic", admin: "Admin" };
 const STRENGTH_LABEL = ["Too short", "Weak", "Fair", "Good", "Strong"];
@@ -392,6 +393,12 @@ function Profile() {
 
             <div className="profile-main">
               <DetailsCard
+                key={profile.id}
+                profile={profile}
+                onSaved={refreshProfile}
+              />
+
+              <AddressCard
                 key={profile.id}
                 profile={profile}
                 onSaved={refreshProfile}
