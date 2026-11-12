@@ -220,7 +220,7 @@ function Home() {
 
             {selected && (
               <Link
-                to={`/shops?category=${selected.service_category ?? ""}`}
+                to={`/shops?category=${selected.service_category ?? ""}&diagnosis=${selected.id}`}
                 className="primary-button"
                 onClick={() => setOpen(false)}
               >

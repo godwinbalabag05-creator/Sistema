@@ -10,6 +10,7 @@ import { useAuth } from "../lib/AuthContext";
 import { useVehicles } from "../lib/VehicleContext";
 import { CATEGORIES, categoryLabel } from "../lib/categories";
 import { formatPhone } from "../lib/phone";
+import BookingFormWithDiagnosis from "../components/BookingFormWithDiagnosis";
 
 function mapsUrl(shop) {
   const query = [shop.shop_name, shop.address, shop.city]
@@ -345,7 +346,8 @@ function Shops() {
         )}
 
         {bookingShopId === shop.id && selectedVehicle && (
-          <BookingForm
+          <BookingFormWithDiagnosis
+            initialDiagnosisId={searchParams.get("diagnosis") ?? ""}
             shop={shop}
             vehicle={selectedVehicle}
             onCancel={() => setBookingShopId(null)}

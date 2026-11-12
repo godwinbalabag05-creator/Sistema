@@ -10,6 +10,8 @@ import { useAuth } from "../lib/AuthContext";
 import { confirmDialog } from "../lib/confirm";
 import { formatPhone } from "../lib/phone";
 import { statusLabel } from "../lib/bookingStatus";
+import DiagnosisBox from "../components/DiagnosisBox";
+
 
 function formatDate(value) {
   return new Date(value).toLocaleString("en-PH", {
@@ -96,7 +98,7 @@ function Bookings() {
       supabase
         .from("bookings")
         .select(
-          "*, mechanic_shops(shop_name, address, city, phone), vehicles(year, make, model), users(full_name, email), shop_reviews(id, rating, comment, created_at, author_name)"
+          "*, mechanic_shops(shop_name, address, city, phone), vehicles(year, make, model), users(full_name, email), shop_reviews(id, rating, comment, created_at, author_name), diagnoses(title, summary, severity, causes, recommended_action, driving_advice)"
         )
         .order("created_at", { ascending: false }),
       isAdmin
@@ -323,6 +325,8 @@ function Bookings() {
                     </div>
                   </dl>
                 </div>
+
+                <DiagnosisBox diagnosis={booking.diagnoses} />
 
                 {isAdmin && booking.status === "declined" && (
                   <div className="report-box warn">

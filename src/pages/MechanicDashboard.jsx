@@ -7,6 +7,8 @@ import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../lib/AuthContext";
 import { formatPhone } from "../lib/phone";
 import { statusLabel } from "../lib/bookingStatus";
+import DiagnosisBox from "../components/DiagnosisBox";
+
 
 const TABS = [
   { key: "new", label: "New requests", statuses: ["forwarded"] },
@@ -56,8 +58,7 @@ function MechanicDashboard() {
       supabase
         .from("bookings")
         .select(
-          "*, mechanic_shops(shop_name), vehicles(year, make, model, engine, plate_number)"
-        )
+          "*, mechanic_shops(shop_name), vehicles(year, make, model, engine, plate_number), diagnoses(title, summary, severity, causes, recommended_action, driving_advice)"        )
         .order("requested_datetime", { ascending: true }),
     ]);
 
@@ -316,6 +317,8 @@ function MechanicDashboard() {
                         </div>
                       </dl>
                     </div>
+
+                    <DiagnosisBox diagnosis={booking.diagnoses} />
 
                     {booking.completion_report && (
                       <div className="report-box">

@@ -266,7 +266,7 @@ function Diagnosis() {
               </div>
 
               <Link
-                to={`/shops?category=${result.service_category ?? ""}`}
+                to={`/shops?category=${result.service_category ?? ""}${result.diagnosis_id ? `&diagnosis=${result.diagnosis_id}` : ""}`}
                 className="secondary-button"
               >
                 Find a Mechanic
