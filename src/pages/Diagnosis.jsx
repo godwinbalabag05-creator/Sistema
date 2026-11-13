@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import PhotoInput from "../components/PhotoInput";
 import { diagnose } from "../lib/diagnose";
 import { useVehicles } from "../lib/VehicleContext";
+import HelpfulPrompt from "../components/HelpfulPrompt";
 
 const ADVICE = {
   drive_normally: "Safe to keep driving normally.",
@@ -273,6 +274,17 @@ function Diagnosis() {
               </Link>
 
             </div>
+
+            {result.used_reference && (
+              <p className="reference-note">
+                This answer was informed by similar cases E-Kaniko has seen
+                before.
+              </p>
+            )}
+
+            {result.diagnosis_id && (
+              <HelpfulPrompt diagnosisId={result.diagnosis_id} />
+            )}
 
             {result.diagnosis_id && (
               <p className="saved-note">

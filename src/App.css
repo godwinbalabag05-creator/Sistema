@@ -2030,3 +2030,10 @@ a.navbar-user:hover { text-decoration-color: var(--yellow); }
 .booking-form select { display: block; width: 100%; margin-bottom: 14px; padding: 11px 13px; border: 1px solid var(--steel); border-radius: 4px; background: #fff; color: var(--ink); font-size: 0.93rem; transition: border-color 0.18s ease, box-shadow 0.18s ease; }
 .booking-form select:hover { border-color: var(--ink); }
 .booking-form select:focus { border-color: var(--ink); box-shadow: 0 0 0 4px rgba(247, 198, 0, 0.38); outline: 2px solid transparent; }
+
+/* ---------- Knowledge base feedback ---------- */
+
+.helpful-prompt { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 18px 28px 0; font-size: 0.88rem; font-weight: 600; }
+.helpful-prompt .secondary-button { min-height: 36px; padding: 0 14px; font-size: 0.82rem; }
+.helpful-note, .reference-note { margin: 18px 28px 0; color: var(--steel); font-size: 0.85rem; }
+.reference-note { padding: 10px 12px; border-left: 4px solid var(--yellow); background: var(--bg); }
