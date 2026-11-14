@@ -2037,3 +2037,16 @@ a.navbar-user:hover { text-decoration-color: var(--yellow); }
 .helpful-prompt .secondary-button { min-height: 36px; padding: 0 14px; font-size: 0.82rem; }
 .helpful-note, .reference-note { margin: 18px 28px 0; color: var(--steel); font-size: 0.85rem; }
 .reference-note { padding: 10px 12px; border-left: 4px solid var(--yellow); background: var(--bg); }
+
+/* ---------- Diagnosis history ---------- */
+
+.history-list { display: grid; max-width: 850px; }
+.history-more { margin: 4px 0 0; color: var(--steel); font-size: 0.85rem; }
+.history-more a { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: var(--yellow); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.load-more { margin-top: 12px; }
+.filters-clear { align-self: flex-end; padding-bottom: 12px; }
+.history-head { max-width: 850px; }
+
+@media (max-width: 640px) {
+  .load-more { width: 100%; }
+}

@@ -4,28 +4,14 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import VehicleCard from "../components/VehicleCard";
 import DiagnosisCard from "../components/DiagnosisCard";
+import DiagnosisDetailModal from "../components/DiagnosisDetailModal";
 import ListSkeleton from "../components/ListSkeleton";
-import Modal from "../components/Modal";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../lib/AuthContext";
 import { useVehicles } from "../lib/VehicleContext";
+import { formatDate, vehicleName } from "../lib/diagnosisUtils";
 
-const ADVICE = {
-  drive_normally: "Safe to keep driving normally.",
-  drive_carefully: "Drive carefully and get it checked soon.",
-  do_not_drive: "Do not drive. Arrange a tow or roadside help.",
-};
-
-function formatDate(value) {
-  return new Date(value).toLocaleDateString("en-PH", { dateStyle: "medium" });
-}
-
-function vehicleName(row) {
-  const vehicle = row.conversations?.vehicles;
-  return vehicle
-    ? `${vehicle.year} ${vehicle.make} ${vehicle.model}`
-    : "Vehicle";
-}
+const LATEST = 3;
 
 function Home() {
   const { user } = useAuth();
@@ -33,11 +19,12 @@ function Home() {
   const userId = user?.id;
 
   const [history, setHistory] = useState([]);
+  const [total, setTotal] = useState(0);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
 
-  // Your own saved diagnoses, newest first
+  // Your latest saved diagnoses, newest first
   useEffect(() => {
     if (!supabase || !userId) {
       setHistoryLoading(false);
@@ -49,14 +36,16 @@ function Home() {
     supabase
       .from("diagnoses")
       .select(
-        "*, conversations!inner(owner_id, vehicle_id, vehicles(year, make, model))"
+        "*, conversations!inner(owner_id, vehicle_id, vehicles(year, make, model))",
+        { count: "exact" }
       )
       .eq("conversations.owner_id", userId)
       .order("created_at", { ascending: false })
-      .limit(5)
-      .then(({ data }) => {
+      .limit(LATEST)
+      .then(({ data, count }) => {
         if (ignore) return;
         setHistory(data ?? []);
+        setTotal(count ?? 0);
         setHistoryLoading(false);
       });
 
@@ -166,9 +155,9 @@ function Home() {
             <div className="section-heading">
               <h2>Previous Diagnoses</h2>
 
-              <Link to="/diagnosis">
-                New diagnosis
-              </Link>
+              {total > 0 && (
+                <Link to="/history">View history ({total})</Link>
+              )}
             </div>
 
             {historyLoading && <ListSkeleton rows={2} />}
@@ -197,72 +186,24 @@ function Home() {
               />
             ))}
 
+            {total > LATEST && (
+              <p className="history-more">
+                Showing your latest {LATEST} of {total}.{" "}
+                <Link to="/history">See all of them</Link>
+              </p>
+            )}
+
           </div>
 
         </section>
 
       </main>
 
-      <Modal
+      <DiagnosisDetailModal
         open={open}
         onClose={() => setOpen(false)}
-        title={selected?.title ?? "Diagnosis"}
-        size="md"
-        footer={
-          <>
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={() => setOpen(false)}
-            >
-              Close
-            </button>
-
-            {selected && (
-              <Link
-                to={`/shops?category=${selected.service_category ?? ""}&diagnosis=${selected.id}`}
-                className="primary-button"
-                onClick={() => setOpen(false)}
-              >
-                Find a mechanic
-              </Link>
-            )}
-          </>
-        }
-      >
-        {selected && (
-          <div className="diagnosis-detail">
-            <div className="diagnosis-detail-top">
-              <span className={`severity ${selected.severity}`}>
-                {selected.severity}
-              </span>
-              <span className="diagnosis-meta">
-                {vehicleName(selected)}, {formatDate(selected.created_at)}
-              </span>
-            </div>
-
-            <p className="modal-text">{selected.summary}</p>
-
-            {selected.driving_advice && (
-              <div className={`driving-advice ${selected.driving_advice}`}>
-                {ADVICE[selected.driving_advice]}
-              </div>
-            )}
-
-            <h3>Possible causes</h3>
-            <ul>
-              {(selected.causes ?? []).map((cause) => (
-                <li key={cause}>{cause}</li>
-              ))}
-            </ul>
-
-            <h3>Recommended action</h3>
-            <p className="modal-text">{selected.recommended_action}</p>
-
-            <p className="diagnosis-disclaimer">{selected.disclaimer}</p>
-          </div>
-        )}
-      </Modal>
+        diagnosis={selected}
+      />
     </>
   );
 }

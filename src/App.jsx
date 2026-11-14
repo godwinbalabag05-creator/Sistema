@@ -7,6 +7,7 @@ import Shops from "./pages/Shops";
 import Bookings from "./pages/Bookings";
 import Mailbox from "./pages/Mailbox";
 import Profile from "./pages/Profile";
+import DiagnosisHistory from "./pages/DiagnosisHistory";
 import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
@@ -25,6 +26,7 @@ import ConfirmHost from "./components/ConfirmHost";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
 import { NotificationProvider } from "./lib/NotificationContext";
 import { VehicleProvider } from "./lib/VehicleContext";
+
 
 // Mechanics start on their own dashboard
 function RoleHome() {
@@ -99,6 +101,15 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Mailbox />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/history"
+                element={
+                  <ProtectedRoute>
+                    <DiagnosisHistory />
                   </ProtectedRoute>
                 }
               />
