@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../lib/AuthContext";
 import { formatPhone } from "../lib/phone";
+import LocationButton from "./LocationButton";
 
 // Value for the "earliest allowed" date input, in local time
 function nowLocal() {
@@ -25,6 +26,7 @@ function BookingFormWithDiagnosis({
   const [address, setAddress] = useState(profile?.address ?? "");
   const [problem, setProblem] = useState("");
   const [saveAddress, setSaveAddress] = useState(!profile?.address);
+  const [pin, setPin] = useState(null);
   const [diagnoses, setDiagnoses] = useState([]);
   const [diagnosisId, setDiagnosisId] = useState("");
   const [error, setError] = useState("");
@@ -108,6 +110,9 @@ function BookingFormWithDiagnosis({
       service_address: place,
       job_brief: problem.trim(),
       diagnosis_id: diagnosisId || null,
+      service_lat: pin ? pin.lat : null,
+      service_lng: pin ? pin.lng : null,
+      location_accuracy: pin ? pin.accuracy : null,
     });
 
     if (saveError) {
@@ -187,6 +192,8 @@ function BookingFormWithDiagnosis({
         placeholder="House or building, street, barangay, city. Add a landmark if you can."
         required
       />
+
+      <LocationButton value={pin} onChange={setPin} disabled={isSaving} />
 
       {(!profile?.address || address.trim() !== profile.address) && (
         <label className="check-row" htmlFor={`save-${shop.id}`}>

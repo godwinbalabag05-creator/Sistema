@@ -2050,3 +2050,12 @@ a.navbar-user:hover { text-decoration-color: var(--yellow); }
 @media (max-width: 640px) {
   .load-more { width: 100%; }
 }
+/* ---------- Exact location (booking form) ---------- */
+
+.location-box { margin: 0 0 14px; padding: 12px 14px; border: 1px dashed var(--steel); border-radius: 6px; background: var(--bg); }
+.location-label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; }
+.location-result p { margin: 0 0 8px; color: var(--ink); font-size: 0.9rem; font-weight: 500; }
+.location-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+.location-hint { margin: 10px 0 0; color: var(--steel); font-size: 0.78rem; line-height: 1.5; }
+.location-box .secondary-button { min-height: 40px; padding: 0 14px; font-size: 0.85rem; }
+.location-box .form-error { margin: 10px 0 0; }

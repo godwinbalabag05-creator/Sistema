@@ -11,8 +11,7 @@ import { confirmDialog } from "../lib/confirm";
 import { formatPhone } from "../lib/phone";
 import { statusLabel } from "../lib/bookingStatus";
 import DiagnosisBox from "../components/DiagnosisBox";
-
-
+import { bookingMapLink, mapLabel } from "../lib/location";
 function formatDate(value) {
   return new Date(value).toLocaleString("en-PH", {
     dateStyle: "medium",
@@ -292,11 +291,11 @@ function Bookings() {
                             {place}
                             <a
                               className="map-link"
-                              href={mapsLink(place)}
+                              href={bookingMapLink(booking)}
                               target="_blank"
                               rel="noopener noreferrer"
                             >
-                              Open in Maps
+                              {mapLabel(booking)}
                             </a>
                           </>
                         ) : (
