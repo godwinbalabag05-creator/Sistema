@@ -8,7 +8,6 @@ import { useAuth } from "../lib/AuthContext";
 import { formatPhone } from "../lib/phone";
 import { statusLabel } from "../lib/bookingStatus";
 import DiagnosisBox from "../components/DiagnosisBox";
-import { bookingMapLink, mapLabel } from "../lib/location";
 
 const TABS = [
   { key: "new", label: "New requests", statuses: ["forwarded"] },
@@ -284,11 +283,11 @@ function MechanicDashboard() {
                                 {booking.service_address}
                                 <a
                                   className="map-link"
-                                  href={bookingMapLink(booking)}
+                                  href={mapsLink(booking.service_address)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
-                                  {mapLabel(booking)}
+                                  Open in Maps
                                 </a>
                               </>
                             ) : (

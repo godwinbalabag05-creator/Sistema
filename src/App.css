@@ -2050,12 +2050,34 @@ a.navbar-user:hover { text-decoration-color: var(--yellow); }
 @media (max-width: 640px) {
   .load-more { width: 100%; }
 }
-/* ---------- Exact location (booking form) ---------- */
 
-.location-box { margin: 0 0 14px; padding: 12px 14px; border: 1px dashed var(--steel); border-radius: 6px; background: var(--bg); }
-.location-label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; }
-.location-result p { margin: 0 0 8px; color: var(--ink); font-size: 0.9rem; font-weight: 500; }
-.location-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
-.location-hint { margin: 10px 0 0; color: var(--steel); font-size: 0.78rem; line-height: 1.5; }
-.location-box .secondary-button { min-height: 40px; padding: 0 14px; font-size: 0.85rem; }
-.location-box .form-error { margin: 10px 0 0; }
+/* ---------- Bookings page: tabs and compact cards ---------- */
+
+.booking-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.tab-count { margin-left: 8px; padding: 0 8px; border-radius: 999px; background: var(--bg); color: var(--ink); font-size: 0.74rem; font-weight: 700; }
+.mail-tab[aria-pressed="true"] .tab-count { background: #2c3a57; color: #fff; }
+.tab-count.alert { background: var(--yellow); color: var(--ink); }
+.mail-tab[aria-pressed="true"] .tab-count.alert { background: var(--yellow); color: var(--ink); }
+
+.booking-search { max-width: 850px; margin-bottom: 16px; }
+.booking-search input { display: block; width: 100%; max-width: 380px; padding: 11px 13px; border: 1px solid var(--steel); border-radius: 4px; background: #fff; color: var(--ink); font-size: 0.93rem; transition: border-color 0.18s ease, box-shadow 0.18s ease; }
+.booking-search input:hover { border-color: var(--ink); }
+.booking-search input:focus { border-color: var(--ink); box-shadow: 0 0 0 4px rgba(247, 198, 0, 0.38); outline: 2px solid transparent; }
+
+.booking-card.is-highlight { border-color: var(--ink); border-left: 5px solid var(--yellow); }
+.booking-summary { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.booking-summary-main { min-width: 0; }
+.booking-summary .text-button { flex: none; margin-top: 2px; white-space: nowrap; }
+.booking-badges { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.new-badge { padding: 2px 10px; border-radius: 999px; background: var(--yellow); color: var(--ink); font-size: 0.72rem; font-weight: 700; }
+.booking-line { display: flex; flex-wrap: wrap; gap: 2px 18px; margin: 6px 0 0; color: var(--steel); font-size: 0.88rem; }
+.booking-next { margin: 8px 0 0; color: var(--steel); font-size: 0.85rem; font-weight: 500; }
+.booking-card.is-highlight .booking-next { color: var(--ink); font-weight: 600; }
+.booking-details { margin-top: 16px; padding-top: 4px; border-top: 1px dashed var(--line); animation: fade-in 0.2s ease both; }
+.show-more { margin-top: 12px; }
+
+@media (max-width: 640px) {
+  .booking-summary { flex-direction: column; gap: 10px; }
+  .booking-search input { max-width: none; }
+  .show-more { width: 100%; }
+}
